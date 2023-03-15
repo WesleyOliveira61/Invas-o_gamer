@@ -8,8 +8,8 @@ class Settings():
         self.ship_speed_factor = 1.5
 
         # Configuração do da classe bullet
-        self.bullet_speed_factor = 1
-        self.bullet_width = 3
+        self.bullet_speed_factor = 3
+        self.bullet_width = 5
         self.bullet_height = 15
         self.bullet_color = 60, 60, 60
         self.bullets_allowed = 3
@@ -20,3 +20,6 @@ class Settings():
         # Fleet_direction igual a 1  representa a direita; -1 representa
         #  a esquerda
         self.fleet_direction = 1
+
+        # Configurações da espacionave
+        self.ship_limit = 3

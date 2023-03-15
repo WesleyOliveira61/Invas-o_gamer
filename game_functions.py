@@ -3,6 +3,7 @@ import sys
 import pygame
 from bullet import Bullet
 from alien import Alien
+from time import sleep
 
 
 def check_keydown_events(event, ai_settings, screen, ship, bullets):
@@ -61,14 +62,25 @@ def update_screen(ai_settings, screen, ship, aliens, bullets):
     pygame.display.flip()
 
 
-def update_bullets(bullets):
+def update_bullets(ai_settings, screen, ship, aliens, bullets):
     """Atualiza a posisão dos projeteis e se livra dos projeteis antigos"""
     # Atualiza as posições dos projeteis
     bullets.update()
     # Livra-se dos projéteis que desapareceram.
     for bullet in bullets.copy():
         if bullet.rect.bottom <= 0:
-            bullets.remove(bullet)
+            bullets.remove(bullet)     
+    chek_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets)    
+
+
+def chek_bullet_alien_collisions(ai_settings, screen, ship, aliens, bullets):
+    # Verifica se algum projétil atingiu os alienígenas
+    # Em caso afirmativo, livra-se do projetil e do alienígena
+    collisions = pygame.sprite.groupcollide(bullets, aliens, False, True)
+    if len(aliens) == 0:
+        # Destrói os projéteis existentes e cria uma nova frota
+        bullets.empty()
+        create_fleet(ai_settings, screen, ship, aliens)
 
 
 def get_number_aliens_x(ai_settings, alien_width):
@@ -82,7 +94,7 @@ def get_number_rows(ai_settings, ship_height, alien_height):
     """Determina o número de linhas com alienígenas que cabem na tela."""
     available_space_y = (ai_settings.screen_height -
                          (3 * alien_height) - ship_height)
-    number_rows = int(available_space_y / (2 * alien_height))
+    number_rows = int(available_space_y / (4 * alien_height))
     return number_rows
 
 
@@ -126,10 +138,50 @@ def change_fleet_direction(ai_settings, aliens):
     ai_settings.fleet_direction *= -1
 
 
-def update_aliens(ai_settings, aliens):
-    """Verifica se a frota está em alguma borda e então muda a posição da frota"""
+def ship_hit(ai_settings, stats, screen, ship, aliens, bullets):
+    """Responde ao fato de a espacionave ter sido atiginda por um alienígena"""
+
+    if stats.ships_left > 0:
+        # Decrementa ship_left
+        stats.ships_left -= 1
+
+        # Esvazia a lista de alienígenas e de projéteis
+        aliens.empty()
+        bullets.empty()
+
+        # Cria uma nova frota e centraliza a espacionave
+        create_fleet(ai_settings, screen, ship, aliens)
+        ship.center_ship()
+
+        # Faz uma pausa
+        sleep(0.5)
+    else:
+        stats.game_active = False
+        
+    
+
+def check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets):
+    """Verifica se algum alienígena alcançou a parte infeiror da tela."""
+
+    screen_rect = screen.get_rect()
+    for alien in aliens.sprites():
+        if alien.rect.bottom >= screen_rect.bottom:
+            # Trata esse caso do mesmo modo que é feito quando a espacionáve
+            # é atingida
+            ship_hit(ai_settings, stats, screen, ship, aliens, bullets)
+            break
+
+
+def update_aliens(ai_settings, stats, screen, ship, aliens, bullets):
+    """Verifica se a frota está em alguma borda e então muda a posição 
+       da frota"""
     check_fleet_edges(ai_settings, aliens)
 
     aliens.update()
+    # Verifica se houve colisões entre alienígenas e a espacionave
+    if pygame.sprite.spritecollideany(ship, aliens):
+        ship_hit(ai_settings, stats, screen, ship, aliens, bullets)
+    # Verifica se há algum alienígena que atingiu a parte inferior da tela
+    check_aliens_bottom(ai_settings, stats, screen, ship, aliens, bullets)
 
 
