@@ -25,11 +25,10 @@ class Bullet(Sprite):
 
     def update(self):
         """Move o projétil para cima na tela"""
-        #Atualiza a posição decimal do projétil
+        # Atualiza a posição decimal do projétil
         self.y -= self.speed_factor
-        #Atualiza a posição de rect
+        # Atualiza a posição de rect
         self.rect.y = self.y
-
 
     def draw_bullet(self):
         """Desenha o projétil na tela."""

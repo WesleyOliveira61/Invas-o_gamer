@@ -30,18 +30,16 @@ class Ship:
         if self.moving_right and self.rect.right < self.screen_rect.right:
             self.center += self.ai_settings.ship_speed_factor
         if self.moving_left and self.rect.left > 0:
-            self.center -= self.ai_settings.ship_speed_factor
-        
+            self.center -= self.ai_settings.ship_speed_factor       
 
         # Atualiza o objeto rect de acordo com o self.center
-        self.rect.centerx = self.center
-        #self.rect.centery = self.
+        self.rect.centerx = self.center        
 
     def blitme(self):
         # Desenha a espacionave na sua posição atual
-        self.screen.blit(self.image, self.rect)       
+        self.screen.blit(self.image, self.rect)      
 
     def center_ship(self):
-        """Centraliza a espacvionave na tela."""
+        """Centraliza a espacionave na tela."""
         self.center = self.screen_rect.centerx
         
